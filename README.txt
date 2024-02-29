@@ -1,6 +1,6 @@
 # spllchkr
 
-Spelling checker - CS214 P1
+Spelling checker - CS214 P2
 
 [ MEMBERS ]
 Colin Cunningham - cdc166
