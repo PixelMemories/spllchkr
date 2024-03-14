@@ -11,8 +11,13 @@ char words[104334][46]; // 2d global variable for dictionary 'words'
 int num_words = 0;
 
 // linked list node struct
+
+// Colin: I added more fields to our node to make things easier for me.
 struct Node {
     char word[46];
+    int wordNum;
+    int lineNum;
+    char filename[255];
     struct Node *next;
 };
 
@@ -75,11 +80,13 @@ int NCSbinarySearch(int rows, char *word) {
     return -1; // Not found
 }
 // stores word in 2d global dictionary array and increments the number of words in it
+// Colin: The binary search on my end can hand the 's case and more because of our 
+// updated string comparison function
 void process_word(char *word) {
-    if (strstr(word, "'s") == NULL) { // Check if the substring "'s" is not present in the word
-        strcpy(words[num_words], word);
-        num_words++;
-    }
+    
+    strcpy(words[num_words], word);
+    num_words++;
+    
 }
 
 void prepare() {
@@ -136,13 +143,17 @@ void prepare() {
 }
 
 // Adds node to linked list
-void append(struct Node **headRef, const char *word) {
+// Colin: I added new things to be added to each node
+void append(struct Node **headRef, const char *word, int wordNum, int lineNum, const char *filename) {
     struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
     if (newNode == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
         exit(EXIT_FAILURE);
     }
     strcpy(newNode->word, word);
+    newNode->wordNum = wordNum;
+    newNode->lineNum = lineNum;
+    strcpy(newNode->filename, filename);
     newNode->next = NULL;
 
     if (*headRef == NULL) {
@@ -270,23 +281,35 @@ void checkList(struct Node* head) {
     printf("\n");
 }
 
+// Colin: updated comparePrepare, check my comments within the function to figure out
+// exactly what it does
 int comparePrepare() {
-    int fd = open("road.txt", O_RDONLY);
+    char filename[255] = "constitution.txt";
+
+
+    int fd = open(filename, O_RDONLY);
     if (fd == -1) {
         perror("Error opening file");
         return -1;
     }
 
     char buf[BUFSIZE];
+    int lineNum = -1;
     ssize_t r;
     char word[46];
     struct Node *head = NULL;
 
+
+
     while ((r = read(fd, buf, BUFSIZE)) > 0) {
+        
         char *p = buf;
         char *end = buf + r;
 
+        int wordNumber = 0;
         while (p < end) {
+            lineNum++;
+
             // skip the leading whitespace
             while (p < end && (*p == ' ' || *p == '\t' || *p == '\n')) {
                 p++;
@@ -295,15 +318,18 @@ int comparePrepare() {
             // copy word
             int i = 0;
             while (p < end && i < 46 - 1 && *p != ' ' && *p != '\t' && *p != '\n') {
-                // skip double quotes
-                if (*p == '"') {
+                
+                
+                // keep single quote/apostrophe and dash, skip double quotes, and don't look at anything that is outside of a-z or A-Z
+                if ((*p != '\'' && *p != '-') && (*p != '"' && ((*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z')))) {
                     p++;
                     continue;
                 }
+
                 // check for various forms of punct
-                if (*p == '.' || *p == '!' || *p == '?' || *p == ',' || *p == ';' || *p == ':') {
+                if (*p == '.' || *p == '!' || *p == '?' || *p == ',' || *p == ';' || *p == ':' || *p == '"') {
                     // skip punct with space before
-                    if (p == buf || *(p - 1) == ' ') {
+                    if (p == buf || *(p - 1) == ' ' || *(p - 1) == '\n') {
                         p++;
                         continue;
                     }
@@ -318,7 +344,8 @@ int comparePrepare() {
             word[i] = '\0';
 
             if (i > 0) {
-                append(&head, word);
+                wordNumber++;
+                append(&head, word, wordNumber, lineNum, filename);
             }
         }
     }
@@ -344,7 +371,6 @@ int comparePrepare() {
 
     return 0;
 }
-
 
 // silly main function to test searcher
 int main() {
