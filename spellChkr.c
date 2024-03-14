@@ -34,15 +34,35 @@ int my_strcmp(const char *s1, const char *s2) {
     }
     return (*s1 - *s2);
 }
+int my_NCSstrcmp(const char *s1, const char *s2) {
+    while (*s1 && *s2) {
+        if (*s1 == '\'') {
+            s1++;
+            continue;
+        }
+        if (*s2 == '\'') {
+            s2++;
+            continue;
+        }
+        if (tolower(*s1) != tolower(*s2)) {
+            return (tolower(*s1) - tolower(*s2));
+        }
+        s1++;
+        s2++;
+    }
+    return (tolower(*s1) - tolower(*s2));
+}
 
-int binarySearch(int rows, char *word) {
+int NCSbinarySearch(int rows, char *word) {
     int low = 0;
     int high = rows - 1;
 
     while (low <= high) {
         int mid = (low + high) / 2;
-        int cmp = my_strcmp(words[mid], word);
-
+        int cmp = my_NCSstrcmp(words[mid], word);
+        //printf ("strcmp: %d mid word: %s \n", cmp, words[mid]);
+        //printf("debug ASCII mid: %d, and word: %d \n", words[mid], word);
+        //printf("debug the word is between low: %d, and high: %d. \n", low, high);
         if (cmp == 0) {
             return mid; // Found
         } else if (cmp < 0) {
@@ -54,7 +74,6 @@ int binarySearch(int rows, char *word) {
 
     return -1; // Not found
 }
-
 // stores word in 2d global dictionary array and increments the number of words in it
 void process_word(char *word) {
     if (strstr(word, "'s") == NULL) { // Check if the substring "'s" is not present in the word
@@ -140,18 +159,112 @@ void append(struct Node **headRef, const char *word) {
 }
 
 // this function checks the list of words obtained from the example txt file
-void checkList(struct Node *head) {
+int ttl_upper(char a[46]){
+    int i = 0; 
+    int counter;
+    char ch;
+    ch = a[0];
+ 
+    // counting of upper case
+    while (ch != '\0') {
+        ch = a[i];
+        if (isupper(ch))
+            counter++;
+ 
+        i++;
+    }
+ 
+    // returning total number of upper case present in sentence
+    return (counter);
+}
+
+int ttl_lower(char a[46]){
+    int i = 0; 
+    int counter;
+    char ch;
+    ch = a[0];
+ 
+    // counting of upper case
+    while (ch != '\0') {
+        ch = a[i];
+        if (islower(ch))
+            counter++;
+ 
+        i++;
+    }
+ 
+    // returning total number of upper case present in sentence
+    return (counter);
+}
+
+// this function checks the list of words obtained from the example txt file
+void checkList(struct Node* head) {
     while (head != NULL) {
         char word_to_search[46];
-
         strcpy(word_to_search, head->word);
 
-        int index = binarySearch(num_words, word_to_search);
+        int index = NCSbinarySearch(num_words, word_to_search);
+        
+        char Dword[46]; 
+        strcpy(Dword, words[index]);
+        char temp_Dword[46];
+        for (int i = 1; i<strlen(Dword); i++){
+            strcat(temp_Dword, &Dword[i]);
+        }
+
+        char FLcap[46];
+        strcpy(FLcap, Dword);
+        FLcap[0] = toupper(FLcap[0]);
+
+        char Allcap[46];
+        strcpy(Allcap, Dword);
+        for(int i = 0; Allcap[i]; i++){
+            Allcap[i] = toupper(Allcap[i]);
+        }
+
+        char AllLC[46];
+        strcpy(AllLC, Dword);
+        for(int i = 0; AllLC[i]; i++){
+            AllLC[i] = tolower(AllLC[i]);
+        }
+        
+        int UpCount;
+        printf("DEBUG: Dword: %s, AllLC: %s, Allcap: %s, FLcap: %s \n", Dword, AllLC, Allcap, FLcap);
+
         if (index != -1) {
             printf("'%s' found at index %d.\n", word_to_search, index);
-        } else {
+        }else if (ttl_upper(Dword) == strlen(Dword)){
+            if (my_strcmp(FLcap, word_to_search)==0){
+                printf("'%s' found at index %d.\n", word_to_search, index);
+            } else if (my_strcmp(AllLC, word_to_search)==0){
+                printf("'%s' found at index %d.\n", word_to_search, index);
+            } else{
+                printf("SCREAM");
+            }
+        } else if (ttl_lower(Dword)==strlen(Dword)) {
+            if (my_strcmp(FLcap, word_to_search)==0){
+                printf("'%s' found at index %d.\n", word_to_search, index);
+            } else if (my_strcmp(Allcap, word_to_search)==0){
+                printf("'%s' found at index %d.\n", word_to_search, index);
+            } else {
+                printf("SCREAM2");
+            }
+        } else if (isupper(Dword[0]) && ttl_lower(temp_Dword)==strlen(temp_Dword)){
+            if (my_strcmp(AllLC, word_to_search)==0){
+                printf("'%s' found at index %d.\n", word_to_search, index);
+            } else if (my_strcmp(Allcap, word_to_search)==0) {
+                printf("'%s' found at index %d.\n", word_to_search, index);
+            } else {
+                printf("SCREAM3");
+            }
+        } else if (isupper(Dword[0]) && !(ttl_lower(temp_Dword)==strlen(temp_Dword))){
+            if (my_strcmp(Allcap, word_to_search)==0) {
+                printf("'%s' found at index %d.\n", word_to_search, index);
+            }
+        }else {
             printf("'%s' not found.\n", word_to_search);
         }
+        
         head = head->next;
     }
     printf("\n");
