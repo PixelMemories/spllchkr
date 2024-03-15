@@ -19,6 +19,7 @@ struct Node {
     int wordNum;
     int lineNum;
     char filename[255];
+    int hyphen; // If hyphen == 1 then the word has a hypen
     struct Node *next;
 };
 
@@ -278,6 +279,25 @@ void capFL(char *str) {
 
 //Richard: this function checks the list of words obtained from the example txt file 
 //It is now fully case sensitive and follows the logic mentioned in write up about uppercase letters
+/*
+void checkList(struct Node *head) {
+    while (head != NULL) {
+        char word_to_search[46];
+
+        strcpy(word_to_search, head->word);
+
+        int index = binarySearch(num_words, word_to_search);
+    
+
+        if (index == -1) {
+            printf("'%s' not found. This word is %d word(s) into file %s on line %d\n", word_to_search, head->wordNum, head->filename, head->lineNum);
+        }
+        
+        head = head->next;
+    }
+    printf("\n");
+}
+*/
 void checkList(struct Node* head) {
     while (head != NULL) {
         char word_to_search[46];
