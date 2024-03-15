@@ -277,7 +277,7 @@ void capFL(char *str) {
 
 //Richard: this function checks the list of words obtained from the example txt file 
 //It is now fully case sensitive and follows the logic mentioned in write up about uppercase letters
-void NEWcheckList(struct Node* head) {
+void checkList(struct Node* head) {
     while (head != NULL) {
         char word_to_search[46];
         strcpy(word_to_search, head->word);
