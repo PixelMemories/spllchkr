@@ -21,6 +21,7 @@ struct Node {
     struct Node *next;
 };
 
+//Richard: here are my custom strcmps
 int my_strcmp(const char *s1, const char *s2) {
     while (*s1 && *s2) {
         if (*s1 == '\'') {
@@ -49,6 +50,7 @@ int my_strcmp(const char *s1, const char *s2) {
     }
     return (*s1 - *s2);
 }
+
 int my_NCSstrcmp(const char *s1, const char *s2) {
     while (*s1 && *s2) {
         if (*s1 == '\'') {
@@ -81,6 +83,7 @@ int my_NCSstrcmp(const char *s1, const char *s2) {
     return tolower(*s1) - tolower(*s2);
 }
 
+//Richard: a bunch of search functions. some are N/A but here they are
 int CSbinarySearch(int rows, char *word) {
     int low = 0;
     int high = rows - 1;
@@ -134,6 +137,46 @@ int NCSseqSearch (int rows, char *word) {
     }
     return -1;
 }
+
+//Richard Case Sensitivity helper functions. these just count the number of upper and lower case numbers.
+int ttl_upper(char a[46]){
+    int i = 0; 
+    int counter;
+    char ch;
+    ch = a[0];
+ 
+    // counting of upper case
+    while (ch != '\0') {
+        ch = a[i];
+        if (isupper(ch))
+            counter++;
+ 
+        i++;
+    }
+ 
+    // returning total number of upper case present in sentence
+    return (counter);
+}
+
+int ttl_lower(char a[46]){
+    int i = 0; 
+    int counter;
+    char ch;
+    ch = a[0];
+ 
+    // counting of upper case
+    while (ch != '\0') {
+        ch = a[i];
+        if (islower(ch))
+            counter++;
+ 
+        i++;
+    }
+ 
+    // returning total number of upper case present in sentence
+    return (counter);
+}
+
 // stores word in 2d global dictionary array and increments the number of words in it
 // Colin: The binary search on my end can hand the 's case and more because of our 
 // updated string comparison function
@@ -224,46 +267,7 @@ void append(struct Node **headRef, const char *word, int wordNum, int lineNum, c
     current->next = newNode;
 }
 
-// this function checks the list of words obtained from the example txt file
-int ttl_upper(char a[46]){
-    int i = 0; 
-    int counter;
-    char ch;
-    ch = a[0];
- 
-    // counting of upper case
-    while (ch != '\0') {
-        ch = a[i];
-        if (isupper(ch))
-            counter++;
- 
-        i++;
-    }
- 
-    // returning total number of upper case present in sentence
-    return (counter);
-}
-
-int ttl_lower(char a[46]){
-    int i = 0; 
-    int counter;
-    char ch;
-    ch = a[0];
- 
-    // counting of upper case
-    while (ch != '\0') {
-        ch = a[i];
-        if (islower(ch))
-            counter++;
- 
-        i++;
-    }
- 
-    // returning total number of upper case present in sentence
-    return (counter);
-}
-
-// this function checks the list of words obtained from the example txt file
+//Richard: a little helper function. capitolizes the first character (no clue why I have it here I was brain marathoning)
 void capFL(char *str) {
     if (str == NULL || *str == '\0') {
         return; // Handle empty string or NULL pointer
@@ -271,6 +275,8 @@ void capFL(char *str) {
     *str = toupper(*str); // Capitalize the first character
 }
 
+//Richard: this function checks the list of words obtained from the example txt file 
+//It is now fully case sensitive and follows the logic mentioned in write up about uppercase letters
 void NEWcheckList(struct Node* head) {
     while (head != NULL) {
         char word_to_search[46];
