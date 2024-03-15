@@ -279,32 +279,13 @@ void capFL(char *str) {
 
 //Richard: this function checks the list of words obtained from the example txt file 
 //It is now fully case sensitive and follows the logic mentioned in write up about uppercase letters
-/*
-void checkList(struct Node *head) {
-    while (head != NULL) {
-        char word_to_search[46];
-
-        strcpy(word_to_search, head->word);
-
-        int index = binarySearch(num_words, word_to_search);
-    
-
-        if (index == -1) {
-            printf("'%s' not found. This word is %d word(s) into file %s on line %d\n", word_to_search, head->wordNum, head->filename, head->lineNum);
-        }
-        
-        head = head->next;
-    }
-    printf("\n");
-}
-*/
 void checkList(struct Node* head) {
     while (head != NULL) {
         char word_to_search[46];
         strcpy(word_to_search, head->word);
-
+        int ifHyph = head->hyphen;
         int index = CSbinarySearch(num_words, word_to_search);
-
+        printf("ifHyphe: %d \n", ifHyph);
         if (index == -1) {
             //THUS THE CASE SENSITIVE SEARCH WAS A FAIL
             //printf("'%s' THIS WORD FAILED CS TEST \n", word_to_search);
@@ -312,7 +293,7 @@ void checkList(struct Node* head) {
             //do a NCS test to find if word exists in dictionary letterwise
             int NCSindex = NCSseqSearch(num_words, word_to_search);
             if (NCSindex == -1){
-                printf("'%s' THIS WORD FAILED NCS TEST ITS NOT SPELLED RIGHT FLAG FOR ERROR\n", word_to_search);
+                printf("'%s' not found. This word is %d word(s) into file %s on line %d\n", word_to_search, head->wordNum, head->filename, head->lineNum);
             }else{
                 char Dword[46]; 
                 strcpy(Dword, words[NCSindex]);
@@ -336,19 +317,16 @@ void checkList(struct Node* head) {
                 //printf("DEBUG: Dword: %s, AllLC: %s, Allcap: %s, FLcap: %s \n", Dword, AllLC, Allcap, FLcap);
 
                 if (my_strcmp(FLcap, word_to_search)==0){
-                    printf("'%s' FLcap found at index %d in dict SPELLED CORRECT.\n", word_to_search, NCSindex);
+                    //printf("'%s' FLcap found at index %d in dict SPELLED CORRECT.\n", word_to_search, NCSindex);
                 } else if (my_strcmp(Allcap, word_to_search)==0){
-                    printf("'%s' Allcap found at index %d in dict SPELLED CORRECT.\n", word_to_search, NCSindex);
+                    //printf("'%s' Allcap found at index %d in dict SPELLED CORRECT.\n", word_to_search, NCSindex);
                 } else if (my_strcmp(AllLC, word_to_search)==0){
-                    printf("'%s' found at index %d.\n", word_to_search, NCSindex);
+                    //printf("'%s' found at index %d.\n", word_to_search, NCSindex);
                 } else{
-                    printf("'%s' THIS WORD REALLY DOES NOT EXIST FLAG FOR ERROR \n", word_to_search);
+                    printf("'%s' not found. This word is %d word(s) into file %s on line %d\n", word_to_search, head->wordNum, head->filename, head->lineNum);
                 }
             }
-        }else {
-            printf("'%s' This word is spelled CORRECT! CS found at index %d.\n", word_to_search, index);
         }
-        
         head = head->next;
     }
     printf("\n");
