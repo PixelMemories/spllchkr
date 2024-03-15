@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h> // speed, I am speed
+#include <ctype.h>
 
 #define BUFSIZE 4096
 
