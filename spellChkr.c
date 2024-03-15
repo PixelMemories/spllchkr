@@ -31,6 +31,16 @@ int my_strcmp(const char *s1, const char *s2) {
             s2++;
             continue;
         }
+        if (!isascii(*s1)){
+            //printf("IM NOT ASCII 1: %s \n", s1);
+            s1++;
+            continue;
+        }
+        if (!isascii(*s2)){
+            //printf("IM NOT ASCII 2: %s \n", s2);
+            s2++;
+            continue;
+        }
         if (*s1 != *s2) {
             return (*s1 - *s2);
         }
@@ -49,22 +59,35 @@ int my_NCSstrcmp(const char *s1, const char *s2) {
             s2++;
             continue;
         }
-        if (tolower(*s1) != tolower(*s2)) {
-            return (tolower(*s1) - tolower(*s2));
+        if (!isascii(*s1)){
+            //printf("IM NOT ASCII 1: %s \n", s1);
+            s1++;
+            continue;
+        }
+        if (!isascii(*s2)){
+            //printf("IM NOT ASCII 2: %s \n", s2);
+            s2++;
+            continue;
+        }
+        char c1 = tolower(*s1);
+        char c2 = tolower(*s2);
+
+        if (c1 != c2) {
+            return (c1 - c2);
         }
         s1++;
         s2++;
     }
-    return (tolower(*s1) - tolower(*s2));
+    return tolower(*s1) - tolower(*s2);
 }
 
-int NCSbinarySearch(int rows, char *word) {
+int CSbinarySearch(int rows, char *word) {
     int low = 0;
     int high = rows - 1;
 
     while (low <= high) {
         int mid = (low + high) / 2;
-        int cmp = my_NCSstrcmp(words[mid], word);
+        int cmp = my_strcmp(words[mid], word);
         //printf ("strcmp: %d mid word: %s \n", cmp, words[mid]);
         //printf("debug ASCII mid: %d, and word: %d \n", words[mid], word);
         //printf("debug the word is between low: %d, and high: %d. \n", low, high);
@@ -78,6 +101,38 @@ int NCSbinarySearch(int rows, char *word) {
     }
 
     return -1; // Not found
+}
+
+//DEFUNCT AND IS NOT CASE SENSITIIVE FOR OUT APPLICATION
+int NCSbinarySearch(int rows, char *word) {
+    int low = 0;
+    int high = rows - 1;
+
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        int cmp = my_NCSstrcmp(words[mid], word);
+        printf ("strcmp: %d mid word: %s \n", cmp, words[mid]);
+        printf("debug ASCII mid: %d, and word: %d, and wordword: %s \n", words[mid], word, word);
+        printf("debug the word is between low: %d, and high: %d. \n", low, high);
+        if (cmp == 0) {
+            return mid; // Found
+        } else if (cmp < 0) {
+            low = mid + 1; // Search in right half
+        } else {
+            high = mid - 1; // Search in left half
+        }
+    }
+
+    return -1; // Not found
+}
+
+int NCSseqSearch (int rows, char *word) {
+    for (int i = 0; i< rows; i++){
+        if(my_NCSstrcmp(words[i], word)==0){
+            return i;
+        }
+    }
+    return -1;
 }
 // stores word in 2d global dictionary array and increments the number of words in it
 // Colin: The binary search on my end can hand the 's case and more because of our 
@@ -209,71 +264,62 @@ int ttl_lower(char a[46]){
 }
 
 // this function checks the list of words obtained from the example txt file
-void checkList(struct Node* head) {
+void capFL(char *str) {
+    if (str == NULL || *str == '\0') {
+        return; // Handle empty string or NULL pointer
+    }
+    *str = toupper(*str); // Capitalize the first character
+}
+
+void NEWcheckList(struct Node* head) {
     while (head != NULL) {
         char word_to_search[46];
         strcpy(word_to_search, head->word);
 
-        int index = NCSbinarySearch(num_words, word_to_search);
-        
-        char Dword[46]; 
-        strcpy(Dword, words[index]);
-        char temp_Dword[46];
-        for (int i = 1; i<strlen(Dword); i++){
-            strcat(temp_Dword, &Dword[i]);
-        }
+        int index = CSbinarySearch(num_words, word_to_search);
 
-        char FLcap[46];
-        strcpy(FLcap, Dword);
-        FLcap[0] = toupper(FLcap[0]);
+        if (index == -1) {
+            //THUS THE CASE SENSITIVE SEARCH WAS A FAIL
+            //printf("'%s' THIS WORD FAILED CS TEST \n", word_to_search);
 
-        char Allcap[46];
-        strcpy(Allcap, Dword);
-        for(int i = 0; Allcap[i]; i++){
-            Allcap[i] = toupper(Allcap[i]);
-        }
+            //do a NCS test to find if word exists in dictionary letterwise
+            int NCSindex = NCSseqSearch(num_words, word_to_search);
+            if (NCSindex == -1){
+                printf("'%s' THIS WORD FAILED NCS TEST ITS NOT SPELLED RIGHT FLAG FOR ERROR\n", word_to_search);
+            }else{
+                char Dword[46]; 
+                strcpy(Dword, words[NCSindex]);
 
-        char AllLC[46];
-        strcpy(AllLC, Dword);
-        for(int i = 0; AllLC[i]; i++){
-            AllLC[i] = tolower(AllLC[i]);
-        }
-        
-        int UpCount;
-        printf("DEBUG: Dword: %s, AllLC: %s, Allcap: %s, FLcap: %s \n", Dword, AllLC, Allcap, FLcap);
+                char FLcap[46];
+                strcpy(FLcap, Dword);
+                capFL(FLcap);
 
-        if (index != -1) {
-            printf("'%s' found at index %d.\n", word_to_search, index);
-        }else if (ttl_upper(Dword) == strlen(Dword)){
-            if (my_strcmp(FLcap, word_to_search)==0){
-                printf("'%s' found at index %d.\n", word_to_search, index);
-            } else if (my_strcmp(AllLC, word_to_search)==0){
-                printf("'%s' found at index %d.\n", word_to_search, index);
-            } else{
-                printf("SCREAM");
-            }
-        } else if (ttl_lower(Dword)==strlen(Dword)) {
-            if (my_strcmp(FLcap, word_to_search)==0){
-                printf("'%s' found at index %d.\n", word_to_search, index);
-            } else if (my_strcmp(Allcap, word_to_search)==0){
-                printf("'%s' found at index %d.\n", word_to_search, index);
-            } else {
-                printf("SCREAM2");
-            }
-        } else if (isupper(Dword[0]) && ttl_lower(temp_Dword)==strlen(temp_Dword)){
-            if (my_strcmp(AllLC, word_to_search)==0){
-                printf("'%s' found at index %d.\n", word_to_search, index);
-            } else if (my_strcmp(Allcap, word_to_search)==0) {
-                printf("'%s' found at index %d.\n", word_to_search, index);
-            } else {
-                printf("SCREAM3");
-            }
-        } else if (isupper(Dword[0]) && !(ttl_lower(temp_Dword)==strlen(temp_Dword))){
-            if (my_strcmp(Allcap, word_to_search)==0) {
-                printf("'%s' found at index %d.\n", word_to_search, index);
+                char Allcap[46];
+                strcpy(Allcap, Dword);
+                for(int i = 0; Allcap[i]; i++){
+                    Allcap[i] = toupper(Allcap[i]);
+                }
+
+                char AllLC[46];
+                strcpy(AllLC, Dword);
+                for(int i = 0; AllLC[i]; i++){
+                    AllLC[i] = tolower(AllLC[i]);
+                }
+
+                //printf("DEBUG: Dword: %s, AllLC: %s, Allcap: %s, FLcap: %s \n", Dword, AllLC, Allcap, FLcap);
+
+                if (my_strcmp(FLcap, word_to_search)==0){
+                    printf("'%s' FLcap found at index %d in dict SPELLED CORRECT.\n", word_to_search, NCSindex);
+                } else if (my_strcmp(Allcap, word_to_search)==0){
+                    printf("'%s' Allcap found at index %d in dict SPELLED CORRECT.\n", word_to_search, NCSindex);
+                } else if (my_strcmp(AllLC, word_to_search)==0){
+                    printf("'%s' found at index %d.\n", word_to_search, NCSindex);
+                } else{
+                    printf("'%s' THIS WORD REALLY DOES NOT EXIST FLAG FOR ERROR \n", word_to_search);
+                }
             }
         }else {
-            printf("'%s' not found.\n", word_to_search);
+            printf("'%s' This word is spelled CORRECT! CS found at index %d.\n", word_to_search, index);
         }
         
         head = head->next;
