@@ -4,7 +4,7 @@ CFLAGS = -Wall -std=c99
 EXE = spellChkr
 
 spellChkr: spellChkr.o
-	$(CC) $(CFLAGS) -o EXE
+	$(CC) $(CFLAGS) spellChkr.c -o EXE
 
 clean:
 	rm -f core $(EXE) *.o
