@@ -15,7 +15,7 @@ prepareCompare will then call on our 3rd important function checkList() which, u
 There are also some helper functions that are sprinkled in along the way to make the process smoother. 
 
 [ TEST PLAN ]
-Out test plan consists of using some general txt files any proud american would have handy (ie the constitution and a peom) and an edgcase txt file. 
+Out test plan consists of using some general txt files any proud american would have handy (ie the constitution.txt and a road.txt) and an edgcase txt file (Edges.txt). 
 The general txt files test how our program does handling short, and long text files, as well as some odd english shenanigans including formatting and misspelled words. 
 Our edge cases txt file lists some really weird edgecases that we might run into for some god awful reason just to make sure we follow the write ups logic to a T.
 Finally our program has a runtime reader built into its main function so we can see how long the program takes to run each time we feed it inputs. 
