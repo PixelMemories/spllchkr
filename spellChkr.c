@@ -472,7 +472,7 @@ int comparePrepare(const char* filename) {
 }
 
 
-void traverseDirectory(const char *dirPath) {
+void traverseDirectory(const char *dirPath, int dict) {
     DIR *dir = opendir(dirPath);
     if (dir == NULL) {
         perror("Error opening directory");
@@ -487,17 +487,24 @@ void traverseDirectory(const char *dirPath) {
         char filePath[MAX_PATH_LEN];
         snprintf(filePath, sizeof(filePath), "%s/%s", dirPath, entry->d_name);
         if (entry->d_type == DT_DIR) {
-            traverseDirectory(filePath);
-        } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL) {
+            traverseDirectory(filePath, dict);
+        } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL && dict != 1) {
             comparePrepare(filePath);
+        } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL && dict == 1) {
+            prepare(filePath);
         }
     }
 
     closedir(dir);
 }
 
-void processIndividualFile(const char *filePath) {
-    comparePrepare(filePath);
+void processIndividualFile(const char *filePath, int dict) {
+    if(dict == 1){
+        prepare(filePath);
+    }else{
+        comparePrepare(filePath);
+    }
+    
 }
 
 // silly main function to test searcher
@@ -510,7 +517,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    prepare(argv[1]);
+    //prepare(argv[1]);
 
    
 
@@ -518,15 +525,15 @@ int main(int argc, char *argv[]) {
 
     // first string will be the dictionary 
     
-    for(int i = 2; i < argc; i++){
+    for(int i = 1; i < argc; i++){
         const char *path = argv[i];
 
         DIR *dir = opendir(path);
         if (dir != NULL) {
-            traverseDirectory(path);
+            traverseDirectory(path, i);
             closedir(dir);
         } else {
-            processIndividualFile(path);
+            processIndividualFile(path, i);
         }
     }
         
