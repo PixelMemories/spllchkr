@@ -1,5 +1,3 @@
-# spllchkr
-
 Spelling checker - CS214 P2
 
 [ MEMBERS ]
