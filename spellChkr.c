@@ -411,7 +411,7 @@ int comparePrepare() {
                 
                 
                 // keep single quote/apostrophe and dash, skip double quotes, and don't look at anything that is outside of a-z or A-Z
-                if ((*p != '\'' && *p != '-') && (*p != '"' && ((*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z')))) {
+                if ((*p != '"' && ((*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z')))) {
                     p++;
                     continue;
                 }
@@ -431,6 +431,7 @@ int comparePrepare() {
                 }
                 word[i++] = *p++;
             }
+
             word[i] = '\0';
 
             if (i > 0) {
