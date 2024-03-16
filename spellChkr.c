@@ -194,17 +194,17 @@ void process_word(char *word) {
     
 }
 
-// Function to read words from the file and store them in the global array
-void read_words_from_file(const char* filename) {
-    FILE* file = fopen(filename, "r");
-    if (file == NULL) {
+// Dynamically allocating words from dict file into global dict array. 
+void DYprepare(const char* filename) {
+    int fd = open(filename, O_RDONLY);
+    if (fd == -1) {
         printf("Error opening file.\n");
         exit(1);
     }
 
     // Allocate memory for initial capacity
-    words = malloc(INITIAL_CAPACITY * sizeof(char*));
-    if (words == NULL) {
+    words_array = malloc(INITIAL_CAPACITY * sizeof(char*));
+    if (words_array == NULL) {
         printf("Memory allocation failed.\n");
         exit(1);
     }
@@ -212,31 +212,47 @@ void read_words_from_file(const char* filename) {
     int capacity = INITIAL_CAPACITY;
     char word[MAX_WORD_LENGTH];
 
-    while (fscanf(file, "%s", word) != EOF) {
-        // Check if the array needs to be resized
-        if (num_words == capacity) {
-            capacity *= 2;
-            char** temp = realloc(words, capacity * sizeof(char*));
-            if (temp == NULL) {
-                printf("Memory reallocation failed.\n");
+    ssize_t bytes_read;
+    while ((bytes_read = read(fd, word, MAX_WORD_LENGTH)) > 0) {
+        char* word_start = word;
+        char* word_end = word;
+        while (word_end - word < bytes_read) {
+            // Find the end of the word
+            while (word_end - word < bytes_read && *word_end != ' ' && *word_end != '\n') {
+                word_end++;
+            }
+            // Allocate memory for the word and copy it
+            if (num_words == capacity) {
+                capacity *= 2;
+                char** temp = realloc(words_array, capacity * sizeof(char*));
+                if (temp == NULL) {
+                    printf("Memory reallocation failed.\n");
+                    exit(1);
+                }
+                words_array = temp;
+            }
+            int word_length = word_end - word_start;
+            words_array[num_words] = malloc((word_length + 1) * sizeof(char));
+            if (words_array[num_words] == NULL) {
+                printf("Memory allocation failed.\n");
                 exit(1);
             }
-            words = temp;
-        }
+            strncpy(words_array[num_words], word_start, word_length);
+            words_array[num_words][word_length] = '\0';
+            num_words++;
 
-        // Allocate memory for the word and copy it
-        words[num_words] = malloc((strlen(word) + 1) * sizeof(char));
-        if (words[num_words] == NULL) {
-            printf("Memory allocation failed.\n");
-            exit(1);
+            // Move to the next word
+            word_start = word_end;
+            while (word_start - word < bytes_read && (*word_start == ' ' || *word_start == '\n')) {
+                word_start++;
+                word_end++;
+            }
         }
-        strcpy(words[num_words], word);
-        num_words++;
     }
 
-    fclose(file);
+    close(fd);
 }
-
+//DEFUNCT used when we had a fixed array. now our global dict array is dynamically allocated
 void prepare(const char* filename) {
     int fd = open(filename, O_RDONLY);
     if (fd == -1) {
@@ -535,7 +551,7 @@ void traverseDirectory(const char *dirPath, int dict) {
             comparePrepare(filePath);
             free(words);
         } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL && dict == 1) {
-            read_words_from_file(filePath);
+            DYprepare(filePath);
         }
     }
 
@@ -544,7 +560,7 @@ void traverseDirectory(const char *dirPath, int dict) {
 
 void processIndividualFile(const char *filePath, int dict) {
     if(dict == 1){
-        read_words_from_file(filePath);
+        DYprepare(filePath);
     }else{
         comparePrepare(filePath);
         free(words);
