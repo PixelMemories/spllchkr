@@ -1,8 +1,10 @@
 CC = gcc
 CFLAGS = -Wall -std=c99 
 
+all:
+
 spellChkr:
-	$(CC) $(CFLAGS) spellChkr.c -o spellChkr
+	gcc spellChkr.c -o spellChkr
 
 clean:
 	rm -f core $(EXE) *.o
