@@ -5,4 +5,4 @@ spellChkr:
 	$(CC) $(CFLAGS) spellChkr.c -o spellChkr
 
 clean:
-	rm -f core $(EXE) *.o
+	rm -rf *.o spellChkr
