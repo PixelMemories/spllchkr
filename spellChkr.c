@@ -10,8 +10,11 @@
 #define BUFSIZE 1
 #define MAX_PATH_LEN 256
 
-char words[104334][46]; // 2d global variable for dictionary 'words'
+#define INITIAL_CAPACITY 10
+#define MAX_WORD_LENGTH 100  // Maximum length of a word
+
 int num_words = 0;
+char** words = NULL;
 
 // linked list node struct
 
@@ -189,6 +192,49 @@ void process_word(char *word) {
     strcpy(words[num_words], word);
     num_words++;
     
+}
+
+// Function to read words from the file and store them in the global array
+void read_words_from_file(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        exit(1);
+    }
+
+    // Allocate memory for initial capacity
+    words = malloc(INITIAL_CAPACITY * sizeof(char*));
+    if (words == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+
+    int capacity = INITIAL_CAPACITY;
+    char word[MAX_WORD_LENGTH];
+
+    while (fscanf(file, "%s", word) != EOF) {
+        // Check if the array needs to be resized
+        if (num_words == capacity) {
+            capacity *= 2;
+            char** temp = realloc(words, capacity * sizeof(char*));
+            if (temp == NULL) {
+                printf("Memory reallocation failed.\n");
+                exit(1);
+            }
+            words = temp;
+        }
+
+        // Allocate memory for the word and copy it
+        words[num_words] = malloc((strlen(word) + 1) * sizeof(char));
+        if (words[num_words] == NULL) {
+            printf("Memory allocation failed.\n");
+            exit(1);
+        }
+        strcpy(words[num_words], word);
+        num_words++;
+    }
+
+    fclose(file);
 }
 
 void prepare(const char* filename) {
@@ -487,8 +533,9 @@ void traverseDirectory(const char *dirPath, int dict) {
             traverseDirectory(filePath, dict);
         } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL && dict != 1) {
             comparePrepare(filePath);
+            free(words);
         } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL && dict == 1) {
-            prepare(filePath);
+            read_words_from_file(filePath);
         }
     }
 
@@ -497,9 +544,10 @@ void traverseDirectory(const char *dirPath, int dict) {
 
 void processIndividualFile(const char *filePath, int dict) {
     if(dict == 1){
-        prepare(filePath);
+        read_words_from_file(filePath);
     }else{
         comparePrepare(filePath);
+        free(words);
     }
     
 }
@@ -536,7 +584,7 @@ int main(int argc, char *argv[]) {
         
 
     //comparePrepare();
-
+    free(words);
     
     clock_t end_time = clock();
 
