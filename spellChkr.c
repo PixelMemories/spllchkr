@@ -5,8 +5,10 @@
 #include <string.h>
 #include <time.h> // speed, I am speed
 #include <ctype.h>
+#include <dirent.h>
 
 #define BUFSIZE 4096
+#define MAX_PATH_LEN 256
 
 char words[104334][46]; // 2d global variable for dictionary 'words'
 int num_words = 0;
@@ -117,7 +119,7 @@ int NCSbinarySearch(int rows, char *word) {
         int mid = (low + high) / 2;
         int cmp = my_NCSstrcmp(words[mid], word);
         printf ("strcmp: %d mid word: %s \n", cmp, words[mid]);
-        printf("debug ASCII mid: %d, and word: %d, and wordword: %s \n", words[mid], word, word);
+        printf("debug ASCII mid: %s, and word: %s, and wordword: %s \n", words[mid], word, word);
         printf("debug the word is between low: %d, and high: %d. \n", low, high);
         if (cmp == 0) {
             return mid; // Found
@@ -189,8 +191,8 @@ void process_word(char *word) {
     
 }
 
-void prepare() {
-    int fd = open("words", O_RDONLY);
+void prepare(const char* filename) {
+    int fd = open(filename, O_RDONLY);
     if (fd == -1) {
         perror("Error opening file");
         return;
@@ -324,6 +326,7 @@ int DOcheckL (char *word_to_search, struct Node* head){
             }
         }
     }
+    return 0;
 }
 
 //Richard: this function checks the list of words obtained from the example txt file 
@@ -399,8 +402,8 @@ void clearSurround(char *word) {
 
 // Colin: updated comparePrepare, check my comments within the function to figure out
 // exactly what it does
-int comparePrepare() {
-    char filename[255] = "constitution.txt";
+int comparePrepare(const char* filename) {
+    
 
 
     int fd = open(filename, O_RDONLY);
@@ -468,14 +471,67 @@ int comparePrepare() {
     return 0;
 }
 
-// silly main function to test searcher
-int main() {
-    prepare();
 
-    
+void traverseDirectory(const char *dirPath) {
+    DIR *dir = opendir(dirPath);
+    if (dir == NULL) {
+        perror("Error opening directory");
+        return;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        char filePath[MAX_PATH_LEN];
+        snprintf(filePath, sizeof(filePath), "%s/%s", dirPath, entry->d_name);
+        if (entry->d_type == DT_DIR) {
+            traverseDirectory(filePath);
+        } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL) {
+            comparePrepare(filePath);
+        }
+    }
+
+    closedir(dir);
+}
+
+void processIndividualFile(const char *filePath) {
+    comparePrepare(filePath);
+}
+
+// silly main function to test searcher
+int main(int argc, char *argv[]) {
     clock_t start_time = clock();
 
-    comparePrepare();
+    if (argc < 2) {
+        printf("Not enough arguments!!!");
+        return EXIT_FAILURE;
+    }
+
+
+    prepare(argv[1]);
+
+   
+
+    // ignore first argument because that's the file
+
+    // first string will be the dictionary 
+    
+    for(int i = 2; i < argc; i++){
+        const char *path = argv[i];
+
+        DIR *dir = opendir(path);
+        if (dir != NULL) {
+            traverseDirectory(path);
+            closedir(dir);
+        } else {
+            processIndividualFile(path);
+        }
+    }
+        
+
+    //comparePrepare();
 
     
     clock_t end_time = clock();
@@ -486,6 +542,8 @@ int main() {
     printf("Elapsed time: %.6f seconds\n", elapsed_time);
 
     printf("%d\n", num_words);
+
+    printf("%d", argc);
 
     return 0;
 }
