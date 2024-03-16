@@ -360,13 +360,15 @@ void checkList(struct Node* head) {
             int fCheck = DOcheckL(first, head);
             int lCheck = DOcheckL(last, head);
             if (fCheck == -1 || lCheck == -1){
-                printf("'%s' not found. This word is %d word(s) into file %s on line %d\n", word_to_search, head->wordNum, head->filename, head->lineNum);
+                //printf("'%s' not found. This word is %d word(s) into file %s on line %d\n", word_to_search, head->wordNum, head->filename, head->lineNum);
+                printf("%s (%d,%d): %s\n", head->filename, head->lineNum, head->wordNum, word_to_search);
             }
 
         } else{
             int Check = DOcheckL(word_to_search, head);
             if (Check == -1){
-                printf("'%s' not found. This word is %d word(s) into file %s on line %d\n", word_to_search, head->wordNum, head->filename, head->lineNum);
+                //printf("'%s' not found. This word is %d word(s) into file %s on line %d\n", word_to_search, head->wordNum, head->filename, head->lineNum);
+                printf("%s (%d,%d): %s\n", head->filename, head->lineNum, head->wordNum, word_to_search);
             }
         }
         head = head->next;
@@ -402,8 +404,8 @@ void clearSurround(char *word) {
 
 // Colin: updated comparePrepare, check my comments within the function to figure out
 // exactly what it does
-int comparePrepare(const char* filename) {
-    
+int comparePrepare() {
+    char filename[255] = "constitution.txt";
 
 
     int fd = open(filename, O_RDONLY);
@@ -442,6 +444,9 @@ int comparePrepare(const char* filename) {
 
             word[i] = '\0';
             clearSurround(word);
+            if (strlen(word)==0){
+                i=0;
+            }
             if (i > 0) {
                 wordNumber++;
                 append(&head, word, wordNumber, lineNum, filename);
