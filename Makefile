@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -std=c99 
+CFLAGS = 
 
 spellChkr:
 	$(CC) $(CFLAGS) spellChkr.c -o spellChkr
