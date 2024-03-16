@@ -3,12 +3,8 @@ CFLAGS = -Wall -std=c99
 
 EXE = spellChkr
 
-SRCS = spellChkr.c
-
-OBJS = $(SRCS:.c=.o)
-
-$(EXE): Makefile
-	$(CC) $(CFLAGS) -o $@ $(OBJS) 
+spellChkr: spellChkr.o
+	$(CC) $(CFLAGS) $^ -o EXE
 
 clean:
 	rm -f core $(EXE) *.o
