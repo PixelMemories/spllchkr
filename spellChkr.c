@@ -371,6 +371,32 @@ void checkList(struct Node* head) {
     printf("\n");
 }
 
+//Richard: program to clear surrounding junk around a word
+void clearSurround(char *word) {
+    int len = strlen(word);
+    if (len == 0) {
+        return; 
+    }
+    
+    int start = 0;
+    int end = len - 1;
+    
+    while ((start < len) && (ispunct(word[start]) || isdigit(word[start]))) {
+        start++;
+    }
+    
+    while ((end >= 0) && (ispunct(word[end]) || isdigit(word[end]))) {
+        end--;
+    }
+    
+    if (start <= end) {
+        memmove(word, word + start, end - start + 1);
+        word[end - start + 1] = '\0';
+    } else {
+        word[0] = '\0'; 
+    }
+}
+
 // Colin: updated comparePrepare, check my comments within the function to figure out
 // exactly what it does
 int comparePrepare() {
@@ -408,32 +434,11 @@ int comparePrepare() {
             // copy word
             int i = 0;
             while (p < end && i < 46 - 1 && *p != ' ' && *p != '\t' && *p != '\n') {
-                
-                
-                // keep single quote/apostrophe and dash, skip double quotes, and don't look at anything that is outside of a-z or A-Z
-                if ((*p != '\'' && *p != '-') && (*p != '"' && ((*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z')))) {
-                    p++;
-                    continue;
-                }
-
-                // check for various forms of punct
-                if (*p == '.' || *p == '!' || *p == '?' || *p == ',' || *p == ';' || *p == ':' || *p == '"') {
-                    // skip punct with space before
-                    if (p == buf || *(p - 1) == ' ' || *(p - 1) == '\n') {
-                        p++;
-                        continue;
-                    }
-                    // skip punct with space after
-                    if (*(p + 1) == ' ' || *(p + 1) == '\t' || *(p + 1) == '\n') {
-                        p++;
-                        continue;
-                    }
-                }
                 word[i++] = *p++;
             }
 
             word[i] = '\0';
-
+            clearSurround(word);
             if (i > 0) {
                 wordNumber++;
                 append(&head, word, wordNumber, lineNum, filename);
