@@ -482,7 +482,7 @@ void traverseDirectory(const char *dirPath, int dict) {
             continue;
         }
         char filePath[MAX_PATH_LEN];
-        snprintf(filePath, sizeof(filePath), "%s/%s", dirPath, entry->d_name);
+        snprintf(filePath, sizeof(filePath)+1, "%s/%s", dirPath, entry->d_name);
         if (entry->d_type == DT_DIR) {
             traverseDirectory(filePath, dict);
         } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL && dict != 1) {
