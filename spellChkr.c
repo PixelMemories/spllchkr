@@ -203,51 +203,55 @@ void DYprepare(const char* filename) {
     }
 
     // Allocate memory for initial capacity
-    words_array = malloc(INITIAL_CAPACITY * sizeof(char*));
-    if (words_array == NULL) {
+    words = malloc(INITIAL_CAPACITY * sizeof(char*));
+    if (words == NULL) {
         printf("Memory allocation failed.\n");
         exit(1);
     }
 
     int capacity = INITIAL_CAPACITY;
-    char word[MAX_WORD_LENGTH];
-
+    char buffer[MAX_WORD_LENGTH + 1]; // +1 for null terminator
+    int buffer_index = 0;
     ssize_t bytes_read;
-    while ((bytes_read = read(fd, word, MAX_WORD_LENGTH)) > 0) {
-        char* word_start = word;
-        char* word_end = word;
-        while (word_end - word < bytes_read) {
-            // Find the end of the word
-            while (word_end - word < bytes_read && *word_end != ' ' && *word_end != '\n') {
-                word_end++;
-            }
+
+    while ((bytes_read = read(fd, buffer + buffer_index, MAX_WORD_LENGTH - buffer_index)) > 0) {
+        buffer_index += bytes_read;
+        char* word_start = buffer;
+        char* word_end;
+
+        while ((word_end = strchr(word_start, ' ')) != NULL || (word_end = strchr(word_start, '\n')) != NULL) {
             // Allocate memory for the word and copy it
             if (num_words == capacity) {
                 capacity *= 2;
-                char** temp = realloc(words_array, capacity * sizeof(char*));
+                char** temp = realloc(words, capacity * sizeof(char*));
                 if (temp == NULL) {
                     printf("Memory reallocation failed.\n");
                     exit(1);
                 }
-                words_array = temp;
+                words = temp;
             }
-            int word_length = word_end - word_start;
-            words_array[num_words] = malloc((word_length + 1) * sizeof(char));
-            if (words_array[num_words] == NULL) {
+
+            *word_end = '\0'; // Null terminate the word
+            words[num_words] = strdup(word_start);
+            if (words[num_words] == NULL) {
                 printf("Memory allocation failed.\n");
                 exit(1);
             }
-            strncpy(words_array[num_words], word_start, word_length);
-            words_array[num_words][word_length] = '\0';
             num_words++;
 
             // Move to the next word
-            word_start = word_end;
-            while (word_start - word < bytes_read && (*word_start == ' ' || *word_start == '\n')) {
-                word_start++;
-                word_end++;
-            }
+            word_start = word_end + 1;
         }
+
+        // Move remaining characters to the beginning of the buffer
+        int remaining_chars = buffer + buffer_index - word_start;
+        memmove(buffer, word_start, remaining_chars);
+        buffer_index = remaining_chars;
+    }
+
+    if (bytes_read == -1) {
+        printf("Error reading file.\n");
+        exit(1);
     }
 
     close(fd);
