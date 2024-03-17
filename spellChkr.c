@@ -557,7 +557,7 @@ void traverseDirectory(const char *dirPath, int dict) {
             DYprepare(filePath);
         }
     }
-
+    free(words);
     closedir(dir);
 }
 
