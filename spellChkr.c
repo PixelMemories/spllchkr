@@ -553,7 +553,6 @@ void traverseDirectory(const char *dirPath, int dict) {
             traverseDirectory(filePath, dict);
         } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL && dict != 1) {
             comparePrepare(filePath);
-            free(words);
         } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL && dict == 1) {
             DYprepare(filePath);
         }
@@ -567,7 +566,6 @@ void processIndividualFile(const char *filePath, int dict) {
         DYprepare(filePath);
     }else{
         comparePrepare(filePath);
-        free(words);
     }
     
 }
