@@ -604,7 +604,6 @@ int main(int argc, char *argv[]) {
         
 
     //comparePrepare();
-    free(words);
     
     clock_t end_time = clock();
 
