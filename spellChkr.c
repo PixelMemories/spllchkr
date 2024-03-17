@@ -8,7 +8,7 @@
 #include <dirent.h>
 
 #define BUFSIZE 1
-#define MAX_PATH_LEN 256
+#define MAX_PATH_LEN 257
 
 #define INITIAL_CAPACITY 10
 #define MAX_WORD_LENGTH 100  // Maximum length of a word
