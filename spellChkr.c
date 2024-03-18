@@ -553,10 +553,11 @@ void traverseDirectory(const char *dirPath, int dict) {
             traverseDirectory(filePath, dict);
         } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL && dict != 1) {
             comparePrepare(filePath);
-        } else if (entry->d_type == DT_REG && strstr(entry->d_name, ".txt") != NULL && dict == 1) {
+        } else if (entry->d_type == DT_REG && dict == 1) {
             DYprepare(filePath);
         }
     }
+
     free(words);
     closedir(dir);
 }
